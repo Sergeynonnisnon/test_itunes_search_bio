@@ -70,5 +70,5 @@ def second_part(input_song,input_artist):
             f.close()
 
 if __name__=='__main__':
-    first_part(input_song,input_artist)
-    second_part(input_song,input_artist)
+    first_part(input_song, input_artist)
+    second_part(input_song, input_artist)
