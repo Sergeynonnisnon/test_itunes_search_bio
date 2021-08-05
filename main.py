@@ -20,16 +20,13 @@ Input format: any (config file, inside a script, input(), cli)
 Output format: .txt file
 
 """
-import bs4
-import pandas
 
 from settings import input_song, input_artist
 import itunespy
 import pandas as pd
-import csv
-import json
 
 def first_part(input_song,input_artist):
+    """first part of task """
     tracks = itunespy.search_track(input_song)
 
     received_tracks = []
@@ -42,30 +39,36 @@ def first_part(input_song,input_artist):
                     list_traks = []
                     for i in album.get_tracks():
                         list_traks.append(i.json)
-                    df = pandas.DataFrame(list_traks)
+                    df = pd.DataFrame(list_traks)
                     df.to_csv(f'{input_artist}_tracks.csv')
 
         break
 
+#####################################################
 
 import requests
 from bs4 import BeautifulSoup as BS
+
+
 def second_part(input_song,input_artist):
+    """second part of task """
     response = requests.get('https://searx.roughs.ru/search',
                             params={'q': f'{input_song} - {input_artist} lyrics  chords', 'format': 'json', 'safesearch': 1})
 
-    print(response.json()['results'][0]['content'])
+    print(f" first entry link{response.json()['results'][0]['pretty_url']}")
     try:
         lyrics_chords = requests.get(response.json()['results'][0]['pretty_url'])
         soup = BS(lyrics_chords.text, 'lxml').body.get_text()
-        print(soup)
+
         with open(f'text_{input_artist}_{input_song}.txt', 'w') as f:
             f.write(soup)
             f.close()
+
     except IndexError:
         with open(f'text_{input_artist}_{input_song}.txt', 'w') as f:
 
             f.close()
 
-
-second_part(input_song=input_song,input_artist=input_artist)
+if __name__=='__main__':
+    first_part(input_song,input_artist)
+    second_part(input_song,input_artist)
