@@ -20,6 +20,7 @@ Input format: any (config file, inside a script, input(), cli)
 Output format: .txt file
 
 """
+import bs4
 import pandas
 
 from settings import input_song, input_artist
@@ -48,6 +49,23 @@ def first_part(input_song,input_artist):
 
 
 import requests
-import 
+from bs4 import BeautifulSoup as BS
 def second_part(input_song,input_artist):
+    response = requests.get('https://searx.roughs.ru/search',
+                            params={'q': f'{input_song} - {input_artist} lyrics  chords', 'format': 'json', 'safesearch': 1})
 
+    print(response.json()['results'][0]['content'])
+    try:
+        lyrics_chords = requests.get(response.json()['results'][0]['pretty_url'])
+        soup = BS(lyrics_chords.text, 'lxml').body.get_text()
+        print(soup)
+        with open(f'text_{input_artist}_{input_song}.txt', 'w') as f:
+            f.write(soup)
+            f.close()
+    except IndexError:
+        with open(f'text_{input_artist}_{input_song}.txt', 'w') as f:
+
+            f.close()
+
+
+second_part(input_song=input_song,input_artist=input_artist)
