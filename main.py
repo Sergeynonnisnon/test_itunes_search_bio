@@ -36,8 +36,8 @@ def first_part(input_song, input_artist):
 
     response = requests.get(BASE_URL + 'term' + '=' + term + '&entity=song').json()
     search_result = response['results']
-    print(len(response['results']))
-    print(response)
+    print(f'count {len(response["results"])} results')
+
     albums = {}
     #######
     # get name albums +author
@@ -47,11 +47,10 @@ def first_part(input_song, input_artist):
 
         if input_song.lower() in str(track['trackName']).lower() \
                 and input_artist.lower() in str(track['artistName']).lower():
-            print(123)
 
             albums[track['artistName'] + '+' + str(track['collectionName']).replace(' ','+')] = track['collectionId']
-            print(albums)
-            print(len(albums))
+
+            print(f'count albums with song is {len(albums)}')
             artist_id=track['artistId']
 
     #######
@@ -61,14 +60,13 @@ def first_part(input_song, input_artist):
 
     for album in albums.keys():
         response = requests.get(BASE_URL + 'term' + '=' + album + '&entity=song')
-        print(response.json())
+
         response.encoding = response.apparent_encoding
         json_resp = response.json()
         json_resp = json_resp['results']
+        #check if album and artist correct
         for i in json_resp:
-
             if i['artistId'] != artist_id or i['collectionId'] not in albums.values():
-
                 json_resp.remove(i)
 
         result += json_resp
@@ -105,4 +103,4 @@ def second_part(input_song, input_artist):
 
 if __name__ == '__main__':
     first_part(input_song, input_artist)
-    #(input_song, input_artist)
+    second_part(input_song, input_artist)
