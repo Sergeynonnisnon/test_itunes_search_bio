@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 """
 
 Part 1
@@ -33,14 +35,23 @@ def first_part(input_song,input_artist):
     for artist in tracks:
         if artist.artist_name == input_artist:
             albums = itunespy.search_album(artist.collection_name)
-            frames = []
+
+            list_tracks = []
             for album in albums:
                 if album.artist_name == input_artist:
-                    list_traks = []
-                    for i in album.get_tracks():
-                        list_traks.append(i.json)
-                    df = pd.DataFrame(list_traks)
-                    df.to_csv(f'{input_artist}_tracks.csv')
+                    album=album.get_tracks()
+                    for i in album:
+
+                        if i.track_name.lower() == input_song.lower():
+
+                            for i in album: list_tracks.append(i.json)
+                            print(len(list_tracks))
+                            print(list_tracks[0])
+
+
+            df = pd.DataFrame(list_tracks)
+
+            df.to_csv(f'{input_artist}_tracks.csv')
 
         break
 
@@ -58,17 +69,19 @@ def second_part(input_song,input_artist):
     print(f" first entry link{response.json()['results'][0]['pretty_url']}")
     try:
         lyrics_chords = requests.get(response.json()['results'][0]['pretty_url'])
-        soup = BS(lyrics_chords.text, 'lxml').body.get_text()
+        soup = BS(lyrics_chords.content, 'lxml',).body.get_text()
 
-        with open(f'text_{input_artist}_{input_song}.txt', 'w') as f:
+
+
+        with open(f'text_{input_artist}_{input_song}.txt', 'w',encoding='utf-8') as f:
             f.write(soup)
-            f.close()
+
 
     except IndexError:
         with open(f'text_{input_artist}_{input_song}.txt', 'w') as f:
+            pass
 
-            f.close()
 
 if __name__=='__main__':
-    first_part(input_song, input_artist)
+    #first_part(input_song, input_artist)
     second_part(input_song, input_artist)
