@@ -24,41 +24,41 @@ Output format: .txt file
 """
 
 from settings import input_song, input_artist
-import itunespy
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup as BS
 
 def first_part(input_song,input_artist):
     """first part of task """
-    tracks = itunespy.search_track(input_song)
+    BASE_URL = 'https://itunes.apple.com/search?'
+    term = input_artist.replace(' ', '+')+'+'+input_song.replace(' ', '+')
 
-    received_tracks = []
-    for artist in tracks:
-        if artist.artist_name == input_artist:
-            albums = itunespy.search_album(artist.collection_name)
+    response = requests.get(BASE_URL+'term'+'='+term+'&entity=song').json()
+    search_result = response['results']
+    print(len(response['results']))
+    albums = {}
+    for track in search_result:
 
-            list_tracks = []
-            for album in albums:
-                if album.artist_name == input_artist:
-                    album=album.get_tracks()
-                    for i in album:
+        if input_song.lower() in str(track['trackName']).lower()\
+                and input_artist.lower() in str(track['artistName']).lower():
 
-                        if i.track_name.lower() == input_song.lower():
+            albums[track['artistName'] + '+'+track['collectionName']] = None
+    result = []
+    for album in albums.keys():
 
-                            for i in album: list_tracks.append(i.json)
-                            print(len(list_tracks))
-                            print(list_tracks[0])
+        response = requests.get(BASE_URL + 'term' + '=' + album + '&entity=song')
+        response.encoding = response.apparent_encoding
+        json_resp = response.json()
+        result += json_resp['results']
+    print(f'count {len(result)} tracks')
+
+    df = pd.DataFrame(result)
+    df.to_csv(f'{input_artist}_tracks.csv')
 
 
-            df = pd.DataFrame(list_tracks)
-
-            df.to_csv(f'{input_artist}_tracks.csv')
-
-        break
 
 #####################################################
 
-import requests
-from bs4 import BeautifulSoup as BS
 
 
 def second_part(input_song,input_artist):
@@ -83,5 +83,5 @@ def second_part(input_song,input_artist):
 
 
 if __name__=='__main__':
-    #first_part(input_song, input_artist)
-    second_part(input_song, input_artist)
+    first_part(input_song, input_artist)
+    #second_part(input_song, input_artist)
