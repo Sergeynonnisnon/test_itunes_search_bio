@@ -3,5 +3,5 @@ input_artist= name artist on itunes
 input_song = name song
 """
 
-input_artist = 'Nirvana'
-input_song = 'Breed'
+input_artist = ''
+input_song = 'Rape Me'
