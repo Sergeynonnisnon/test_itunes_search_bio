@@ -1,0 +1,10 @@
+version: '3'
+
+volumes:
+  results:
+itunes:
+  build: src/
+  volumes:
+    -results: src/results
+  restart: always
+
