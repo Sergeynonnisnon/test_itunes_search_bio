@@ -38,16 +38,16 @@ def first_part(input_song, input_artist):
     BASE_URL = 'https://itunes.apple.com/search?'
     term = input_artist.replace(' ', '+') + '+' + input_song.replace(' ', '+')
 
-    response = requests.get(BASE_URL + 'term' + '=' + term + '&entity=song').json()
-    search_result = response['results']
-    print(f'count {len(response["results"])} results')
+    response = requests.get(BASE_URL + 'term=' + term + '&entity=song').json()['results']
 
-    albums = {}
+    print(f'count {len(response)} results')
+
     #######
     # get name albums +author
     #######
 
-    for track in search_result:
+    albums = {}
+    for track in response:
 
         if input_song.lower() in str(track['trackName']).lower() \
                 and input_artist.lower() in str(track['artistName']).lower():
@@ -78,7 +78,7 @@ def first_part(input_song, input_artist):
     print(f'count {len(result)} tracks')
 
     df = pd.DataFrame(result)
-    df.to_csv(f'results/{input_artist}_track_{input_song}.csv')
+    return df.to_csv(f'results/{input_artist}_track_{input_song}.csv')
 
 
 #####################################################
