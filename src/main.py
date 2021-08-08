@@ -78,6 +78,14 @@ def first_part(input_song, input_artist):
     print(f'count {len(result)} tracks')
 
     df = pd.DataFrame(result)
+    df = df[['artistId',	 'collectionId',	 'trackId',	 'artistName',	 'collectionName',
+             'trackName', 'collectionCensoredName',	 'trackCensoredName',	 'artistViewUrl',
+             'collectionViewUrl',	 'trackViewUrl',	 'previewUrl',	 'collectionPrice',
+             'trackPrice',	 'releaseDate',	 'discCount',	 'discNumber',	 'trackCount',
+             'trackNumber',	 'trackTimeMillis',	 'country',	 'currency',	 'primaryGenreName']]
+    df.set_index('artistId', inplace=True)
+
+    print(df)
     return df.to_csv(f'results/{input_artist}_track_{input_song}.csv')
 
 
@@ -104,4 +112,4 @@ def second_part(input_song, input_artist):
 
 if __name__ == '__main__':
     first_part(input_song, input_artist)
-    second_part(input_song, input_artist)
+    #second_part(input_song, input_artist)
