@@ -35,12 +35,28 @@ from bs4 import BeautifulSoup as BS
 
 def first_part(input_song, input_artist):
     """first part of task """
+
     BASE_URL = 'https://itunes.apple.com/search?'
+
+    if input_song == '' or input_artist == '':
+        raise ValueError('Need give artist and song')
+    elif type(input_song) != str or type(input_artist) != str:
+        raise TypeError('input_song, input_artist must be str')
+    path = f"results/{input_artist}_track_{input_song}.csv"
+
     term = input_artist.replace(' ', '+') + '+' + input_song.replace(' ', '+')
 
-    response = requests.get(BASE_URL + 'term=' + term + '&entity=song').json()['results']
+    response = requests.get(BASE_URL + 'term=' + term + '&entity=song')
 
-    print(f'count {len(response)} results')
+    if response.status_code != 200:
+        raise requests.exceptions.RequestException('bad query or internet connection')
+
+    response = response.json()['results']
+    if len(response) == 0:
+
+        return None
+    else:
+        print(f'count {len(response)} results')
 
     #######
     # get name albums +author
@@ -54,9 +70,8 @@ def first_part(input_song, input_artist):
 
             albums[track['artistName'] + '+' + str(track['collectionName']).replace(' ', '+')] = track['collectionId']
 
-            print(f'count albums with song is {len(albums)}')
             artist_id = track['artistId']
-
+    print(f'count albums with song is {len(albums)}')
     #######
     # get song from albums
     #######
@@ -84,9 +99,11 @@ def first_part(input_song, input_artist):
              'trackPrice',	 'releaseDate',	 'discCount',	 'discNumber',	 'trackCount',
              'trackNumber',	 'trackTimeMillis',	 'country',	 'currency',	 'primaryGenreName']]
     df.set_index('artistId', inplace=True)
+    open(path, 'w').close()
 
-    print(df)
-    return df.to_csv(f'results/{input_artist}_track_{input_song}.csv')
+
+
+    return df.to_csv(path)
 
 
 #####################################################
@@ -94,6 +111,9 @@ def first_part(input_song, input_artist):
 
 def second_part(input_song, input_artist):
     """second part of task """
+    path = f"results/{''.join(e for e in input_artist if e.isalnum())}" \
+           f"_track_{''.join(e for e in input_song if e.isalnum())}.csv"
+
     response = requests.get('https://searx.roughs.ru/search',
                             params={'q': f'{input_song} - {input_artist} lyrics  chords', 'format': 'json',
                                     'safesearch': 1})
@@ -103,11 +123,11 @@ def second_part(input_song, input_artist):
         lyrics_chords = requests.get(response.json()['results'][0]['pretty_url'])
         soup = BS(lyrics_chords.content, 'lxml', ).body.get_text()
 
-        with open(f'results/text_{input_artist}_{input_song}.txt', 'w', encoding='utf-8') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             f.write(soup)
 
     except IndexError:
-        open(f'results/text_{input_artist}_{input_song}.txt', 'w')
+        open(path, 'w').close()
 
 
 if __name__ == '__main__':
